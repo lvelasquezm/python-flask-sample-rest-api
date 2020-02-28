@@ -1,4 +1,4 @@
-data.db
+code/data.db
 .vscode/
 *.pyc
 .idea/
