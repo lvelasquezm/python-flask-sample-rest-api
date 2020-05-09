@@ -34,7 +34,7 @@ within a debugging session by doing the following:
 * Make sure to
 [select your local python venv](https://code.visualstudio.com/docs/python/python-tutorial#_select-a-python-interpreter)
 as your python interpreter in VS Code.
-* This repo is already configured with a VS Code python debugger file, so all you will need
+* This repo is already configured with a VS Code python debugging file, so all you will need
 to do now is to [start the debugging session](https://code.visualstudio.com/docs/editor/debugging#_run-view).
 
 If you are not using VS Code then just run (within your python venv):
