@@ -2,6 +2,7 @@ from flask import Flask, jsonify
 from flask_restful import Api
 from flask_jwt_extended import JWTManager
 
+from blacklist import BLACKLISTED_USER_IDS
 from resources.user import (
     User,
     UserLogin,
@@ -17,6 +18,8 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///data.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['PROPAGATE_EXCEPTIONS'] = True
+app.config['JWT_BLACKLIST_ENABLED'] = True
+app.config['JWT_BLACKLIST_TOKEN_CHECKS'] = ['access', 'refresh']
 app.secret_key = 'mysupersecretkey'
 api = Api(app)
 
@@ -34,6 +37,11 @@ def add_claims_to_jwt(identity):
     if identity == 1:
         return {'is_admin': True}
     return {'is_admin': False}
+
+# Check if an access token is blacklisted
+@jwt.token_in_blacklist_loader
+def check_if_token_is_in_blacklist(decrypted_token):
+    return decrypted_token['identity'] in BLACKLISTED_USER_IDS
 
 # Access token has expired
 @jwt.expired_token_loader
@@ -62,7 +70,7 @@ def missing_token_callback(error):
 # Access token was sent in the request and is not a fresh one
 # but the endpoint requires it to be a fresh one
 @jwt.needs_fresh_token_loader
-def token_not_fresh_callback(error):
+def token_not_fresh_callback():
     return jsonify({
         'message': 'The access token is not fresh.',
         'error': 'fresh_access_token_required',
@@ -70,7 +78,7 @@ def token_not_fresh_callback(error):
 
 # Revoke a token
 @jwt.revoked_token_loader
-def revoke_token_callback(error):
+def revoke_token_callback():
     return jsonify({
         'message': 'The access token has been revoked.',
         'error': 'access_token_required',
