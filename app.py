@@ -6,6 +6,7 @@ from blacklist import BLACKLISTED_USER_IDS
 from resources.user import (
     User,
     UserLogin,
+    UserLogoutResource,
     UserRegister,
     TokenRefreshResource,
 )
@@ -41,7 +42,7 @@ def add_claims_to_jwt(identity):
 # Check if an access token is blacklisted
 @jwt.token_in_blacklist_loader
 def check_if_token_is_in_blacklist(decrypted_token):
-    return decrypted_token['identity'] in BLACKLISTED_USER_IDS
+    return decrypted_token['jti'] in BLACKLISTED_USER_IDS
 
 # Access token has expired
 @jwt.expired_token_loader
@@ -81,11 +82,12 @@ def token_not_fresh_callback():
 def revoke_token_callback():
     return jsonify({
         'message': 'The access token has been revoked.',
-        'error': 'access_token_required',
+        'error': 'access_token_revoked',
     }), 401
 
 api.add_resource(User, '/user/<int:name>')
 api.add_resource(UserLogin, '/login')
+api.add_resource(UserLogoutResource, '/logout')
 api.add_resource(UserRegister, '/register')
 api.add_resource(TokenRefreshResource, '/refresh')
 api.add_resource(Store, '/store/<string:name>')
