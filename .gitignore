@@ -1,5 +1,4 @@
 code/data.db
-.vscode/
 *.pyc
 .idea/
 __pycache__/
